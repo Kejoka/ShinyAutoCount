@@ -14,9 +14,6 @@ If said word is found, a value in a new or existing .txt File will be incremente
 
 ## Problems
 - Slider Values are not dynamic yet
-- Counter-Process doesn't stop when you close the window
-- Counter is not yet compatible with .txt Files
 - GUI is ugly
-- GUI Layout and Funcitonality for the "Counter-Running" State has yte to be implemented
-- Profile loading and saving is missing
+- Multi-Profile loading and saving is missing
 - Screen Capture Rate is static
