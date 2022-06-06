@@ -4,15 +4,7 @@ import PySimpleGUI as gui
 import os.path
 from multiprocessing import Process
 
-# p doesnt stop on window close
-# counter not written to txt file
-# UI ugly af
-# implement runngin ui
-# implement save button
-# build exe
-# add profiles
-
-scan_val = "Pottrott"
+scan_val = "Shuckle"
 txt_path = ""
 
 def main():
@@ -50,7 +42,7 @@ def main():
         ]
     ]
 
-    window = gui.Window("EinfachKeyl AutoCounter", layout)
+    window = gui.Window("ShinyAutoCount", layout)
 
     while True:
         event, values = window.read()
