@@ -1,3 +1,7 @@
 1.png
 backup.txt
 profile.txt
+build/
+dist/
+.vs/
+autocounter.spec

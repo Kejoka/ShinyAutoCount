@@ -1,17 +1,22 @@
 from PIL import Image
 import mss, mss.tools, time, pytesseract
 import PySimpleGUI as gui
-import os.path
 from multiprocessing import Process
+import multiprocessing
+from os.path import exists
 
 def main():
-    pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
+    print("Loading profile...")
     profile = loadProfile()
     if not profile:
-        profile = ["1", "Shuckle", 0, 0, 500, 300, "C:/Example/Counter/txt/File/Path.txt"]
+        print("No Profile found")
+        profile = ["1", "Shuckle", 0, 0, 500, 300, "C:/Example/Counter/txt/File/Path.txt", "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"]
+        print("Profile generated")
     else:
         for i in range(2,6):
             profile[i] = int(float(profile[i]))
+    print(profile)
+
 
     input_column = [
         [gui.Text("Monitor", size=(7,1)), gui.InputText(key="monitor_num", default_text=profile[0], size=(64,10))],
@@ -46,12 +51,29 @@ def main():
         [gui.Button("Stop Counting", key="stop", enable_events=True)]
     ]
 
-    layout = [
-        [
-            gui.Column(layout_setup, key="setup"),
-            gui.Column(layout_run, key="running", visible=False)
-        ]
+    layout_tess = [
+        [gui.Text("Tesseract-OCR could not be found")],
+        [gui.Text("Specifiy the Path to tesseract.exe, save profile and restart")],
+        [gui.Text("Current", size=(7,1)), gui.InputText(default_text=profile[7], key="tess_path", size=(55,10)), gui.FileBrowse(key="tess_browse", target="tess_path")],
+        [gui.Button("Save Profile", key="save", enable_events=True, size=(65, 1))]
     ]
+
+    tess_check = exists(profile[7])
+    if tess_check:
+        pytesseract.pytesseract.tesseract_cmd = profile[7]
+
+        layout = [
+            [
+                gui.Column(layout_setup, key="setup"),
+                gui.Column(layout_run, key="running", visible=False)
+            ]
+        ]
+    else:
+        layout = [
+            [
+                gui.Column(layout_tess)
+            ]
+        ]
 
     window = gui.Window("ShinyAutoCount", layout)
 
@@ -66,46 +88,58 @@ def main():
         if event in ["offset-x", "offset-y", "width", "height"]:
             screen(int(values["monitor_num"]), int(values["offset-x"]), int(values["offset-y"]), int(values["width"]), int(values["height"]))
             img = Image.open("1.png")
-            img.thumbnail((300,300), Image.ANTIALIAS)
+            img.thumbnail((300,300), Image.Resampling.LANCZOS)
             img.save("1.png", "PNG")
             window["img"].update(filename="1.png")
-        if event == "start":
+        elif event == "start":
             window["search_text"].update("Shuckle is searching for: " + values["scan_text"])
             window["file_text"].update("and writing to: " + values["path_text"])
             window["setup"].update(visible=False)
             window["running"].update(visible=True)
+            print("Starting AutoCounter Process...")
             p = Process(target=count, args=(int(values["monitor_num"]), int(values["offset-x"]), int(values["offset-y"]), int(values["width"]), int(values["height"]), values["scan_text"], values["path_text"]))
             p.start()
-        if event == "stop":
+        elif event == "stop":
             window["setup"].update(visible=True)
             window["running"].update(visible=False)
             p.terminate()
+            print("AutoCounter terminated")
         elif event == "save":
+            print("Saving Profile...")
             data = []
-            data.append(values["monitor_num"])
-            data.append(values["scan_text"])
-            data.append(str(values["offset-x"]))
-            data.append(str(values["offset-y"]))
-            data.append(str(values["width"]))
-            data.append(str(values["height"]))
-            data.append(values["path_text"])
+            if tess_check:
+                data.append(values["monitor_num"])
+                data.append(values["scan_text"])
+                data.append(str(values["offset-x"]))
+                data.append(str(values["offset-y"]))
+                data.append(str(values["width"]))
+                data.append(str(values["height"]))
+                data.append(values["path_text"])
+                data.append(profile[7])
+            else:
+                data = profile
+                data[7] = values["tess_path"]
             saveProfile(data)
     window.close()
 
 def count(mon, x, y, w, h, scan_val, txt_path):
+    print("AutoCounter started")
     counter = 0
     pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
     starttime = time.time()
     backupCount(txt_path)
     while True:
         screen(mon, x, y, w, h)
-        if scan_val in pytesseract.image_to_string(Image.open("1.png")):
+        img_string = pytesseract.image_to_string(Image.open("1.png"))
+        print("Read: ")
+        print(img_string)
+        if scan_val in img_string:
+            print(scan_val + "found")
             counter += 1
-            print(counter)
-            if not incrementTxt(txt_path):
-                return
+            print("Current Session Counter: " + str(counter))
+            incrementTxt(txt_path)
             time.sleep(5.0 - ((time.time() - starttime) % 5.0))
-        time.sleep(1.0 - ((time.time() - starttime) % 1.0))
+        time.sleep(0.4 - ((time.time() - starttime) % 0.4))
 
 def grabMon(mon, x, y, w, h):
     with mss.mss() as sct:
@@ -158,6 +192,8 @@ def saveProfile(data):
         file = open("profile.txt", "w+")
         for val in data:
             file.write(str(val) + ",")
+        print("Profile saved:")
+        print(data)
     except:
         print("Error: Saving not possible")
 
@@ -170,5 +206,7 @@ def loadProfile():
         return profile
     except:
         return None
+
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     main()
