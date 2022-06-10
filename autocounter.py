@@ -129,17 +129,16 @@ def count(mon, x, y, w, h, scan_val, txt_path):
     starttime = time.time()
     backupCount(txt_path)
     while True:
+        print("tick")
         screen(mon, x, y, w, h)
         img_string = pytesseract.image_to_string(Image.open("1.png"))
-        print("Read: ")
-        print(img_string)
         if scan_val in img_string:
-            print(scan_val + "found")
+            print(scan_val + " found")
             counter += 1
             print("Current Session Counter: " + str(counter))
             incrementTxt(txt_path)
-            time.sleep(5.0 - ((time.time() - starttime) % 5.0))
-        time.sleep(0.4 - ((time.time() - starttime) % 0.4))
+            time.sleep(5)
+        time.sleep(0.1)
 
 def grabMon(mon, x, y, w, h):
     with mss.mss() as sct:
