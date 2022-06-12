@@ -12,8 +12,16 @@ If said word is found, a value in a new or existing .txt File will be incremente
 3. Insert the path to your existing .txt File or Browse for it on your computer
 4. Start the Counter
 
-## Problems
-- Slider Values are not dynamic yet
-- GUI is ugly
-- Multi-Profile loading and saving is missing
-- Screen Capture Rate is static
+## TODO
+- Dynamic Slider Values
+- Pretty GUI
+- Multi-Profile loading and saving
+- Tutorial -> How to choose Parameter
+- Improve Performance
+- Pause Count after Count until next Text Window
+- Count different Pokemon at once
+- Manual Inc/Dec
+- Advanced Settings:
+    - Changeable Screen Capture Rate
+    - Changeable Pause after Count
+    - Scan for multiple words
