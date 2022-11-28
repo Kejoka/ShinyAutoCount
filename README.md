@@ -13,14 +13,10 @@ If said word is found, a value in a new or existing .txt File will be incremente
 4. Start the Counter
 
 ## TODO
-- Dynamic Slider Values
 - Pretty GUI
-- Multi-Profile loading and saving
 - Tutorial -> How to choose Parameter
 - Improve Performance
-- Pause Count after Count until next Text Window
 - Count different Pokemon at once
-- Manual Inc/Dec
 - Advanced Settings:
     - Changeable Screen Capture Rate
     - Changeable Pause after Count
